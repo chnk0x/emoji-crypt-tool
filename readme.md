@@ -26,7 +26,6 @@ Optional AES encryption adds an extra layer of security.
 
 🔒🔐🗝️💎✨🌟⭐...
 
-markdown
 
 
 *(The hidden message is invisible inside the emojis.)*
@@ -42,7 +41,7 @@ markdown
 
 ## Live Demo
 
-Coming soon via GitHub Pages.
+https://chnk0x.github.io/emoji-crypt-tool/
 
 ## Author
 
