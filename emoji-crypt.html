@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji Crypt - Steganography Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Major+Mono+Display&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<style>
+* {margin:0; padding:0; box-sizing:border-box;}
+:root {--cyber-green:#00ff41; --cyber-pink:#ff00ff; --cyber-blue:#00d4ff; --dark-bg:#0a0e14; --darker-bg:#050810; --card-bg:#111827; --border-color:#1e293b;}
+body {font-family:'Courier Prime', monospace; background:var(--dark-bg); color:var(--cyber-green); min-height:100vh; padding:2rem; background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.03) 2px, rgba(0,255,65,0.03) 4px), radial-gradient(ellipse at center, var(--darker-bg) 0%, var(--dark-bg) 100%); position:relative; overflow-x:hidden;}
+body::before {content:''; position:fixed; top:0; left:0; right:0; bottom:0; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); pointer-events:none; z-index:1000; animation:scanline 8s linear infinite;}
+@keyframes scanline {0%{transform:translateY(0);} 100%{transform:translateY(100%);}}
+@keyframes glitch {0%,100%{transform:translate(0);} 20%{transform:translate(-2px,2px);} 40%{transform:translate(-2px,-2px);} 60%{transform:translate(2px,2px);} 80%{transform:translate(2px,-2px);}}
+@keyframes pulse-glow {0%,100%{box-shadow:0 0 5px var(--cyber-green),0 0 10px var(--cyber-green),inset 0 0 20px rgba(0,255,65,0.1);} 50%{box-shadow:0 0 10px var(--cyber-green),0 0 20px var(--cyber-green),inset 0 0 30px rgba(0,255,65,0.2);}}
+@keyframes blink {0%,49%,100%{opacity:1;} 50%,99%{opacity:0;}}
+.container {max-width:900px; margin:0 auto; position:relative; z-index:1;}
+header {text-align:center; margin-bottom:3rem; animation:glitch 5s infinite;}
+h1 {font-family:'Major Mono Display', monospace; font-size:3.5rem; margin-bottom:0.5rem; text-shadow:0 0 10px var(--cyber-green),2px 2px 0 var(--cyber-pink),-2px -2px 0 var(--cyber-blue); letter-spacing:0.1em;}
+.subtitle {color:var(--cyber-blue); font-size:0.9rem; letter-spacing:0.3em; text-transform:uppercase; margin-top:1rem;}
+.subtitle::before,.subtitle::after {content:'> ';}
+.card {background:var(--card-bg); border:2px solid var(--border-color); border-radius:8px; padding:2rem; margin-bottom:2rem; position:relative; transition:all 0.3s ease;}
+.card::before {content:''; position:absolute; top:-2px; left:-2px; right:-2px; bottom:-2px; background:linear-gradient(45deg, var(--cyber-green), var(--cyber-pink), var(--cyber-blue)); border-radius:8px; opacity:0; transition:opacity 0.3s ease; z-index:-1;}
+.card:hover::before {opacity:0.2;}
+.section-title {color:var(--cyber-pink); font-size:1.2rem; margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:0.2em; display:flex; align-items:center; gap:0.5rem;}
+.section-title::before {content:'['; color:var(--cyber-green);}
+.section-title::after {content:']'; color:var(--cyber-green);}
+.input-group {margin-bottom:1.5rem;}
+label {display:block; margin-bottom:0.5rem; color:var(--cyber-blue); font-size:0.9rem; text-transform:uppercase; letter-spacing:0.1em;}
+label::before {content:'> '; color:var(--cyber-green);}
+textarea,input[type="password"],input[type="text"] {width:100%; padding:1rem; background:var(--darker-bg); border:1px solid var(--border-color); border-radius:4px; color:var(--cyber-green); font-family:'Courier Prime', monospace; font-size:1rem; resize:vertical; transition:all 0.3s ease;}
+textarea {min-height:120px;}
+textarea:focus,input:focus {outline:none; border-color:var(--cyber-green); animation:pulse-glow 2s infinite;}
+textarea::placeholder,input::placeholder {color:rgba(0,255,65,0.3);}
+.checkbox-group {display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;}
+input[type="checkbox"] {width:20px; height:20px; accent-color:var(--cyber-green); cursor:pointer;}
+.checkbox-group label {margin:0; cursor:pointer;}
+.checkbox-group label::before {content:'';}
+.button-group {display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem;}
+button {padding:1rem 2rem; background:var(--darker-bg); border:2px solid var(--cyber-green); color:var(--cyber-green); font-family:'Courier Prime', monospace; font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; cursor:pointer; border-radius:4px; transition:all 0.3s ease; position:relative; overflow:hidden;}
+button::before {content:''; position:absolute; top:50%; left:50%; width:0; height:0; background:var(--cyber-green); border-radius:50%; transform:translate(-50%,-50%); transition:width 0.6s,height 0.6s;}
+button:hover::before {width:300px;height:300px;}
+button:hover {color:var(--dark-bg); box-shadow:0 0 20px var(--cyber-green);}
+button span {position:relative; z-index:1;}
+button:active {transform:scale(0.98);}
+button.secondary {border-color:var(--cyber-blue); color:var(--cyber-blue);}
+button.secondary::before {background:var(--cyber-blue);}
+button.secondary:hover {box-shadow:0 0 20px var(--cyber-blue);}
+button.copy-btn {grid-column:span 2; border-color:var(--cyber-pink); color:var(--cyber-pink);}
+button.copy-btn::before {background:var(--cyber-pink);}
+button.copy-btn:hover {box-shadow:0 0 20px var(--cyber-pink);}
+.output-area {background:var(--darker-bg); border:1px solid var(--border-color); border-radius:4px; padding:1rem; margin-top:1rem; min-height:80px; color:var(--cyber-blue); font-family:'Courier Prime', monospace; word-wrap:break-word; position:relative;}
+.output-area.success {border-color:var(--cyber-green); animation:pulse-glow 2s ease-in-out;}
+.output-area.error {border-color:var(--cyber-pink); color:var(--cyber-pink);}
+.status-message {margin-top:1rem; padding:0.75rem; border-radius:4px; font-size:0.9rem; text-align:center; animation:blink 2s infinite;}
+.status-message.success {background:rgba(0,255,65,0.1); border:1px solid var(--cyber-green); color:var(--cyber-green);}
+.status-message.error {background:rgba(255,0,255,0.1); border:1px solid var(--cyber-pink); color:var(--cyber-pink); animation:none;}
+.info-box {background:rgba(0,212,255,0.1); border:1px solid var(--cyber-blue); border-radius:4px; padding:1rem; margin-top:2rem; font-size:0.85rem; line-height:1.6;}
+.info-box strong {color:var(--cyber-blue);}
+footer {text-align:center; margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border-color); color:rgba(0,255,65,0.5); font-size:0.8rem;}
+.emoji-preview {font-size:2rem; text-align:center; padding:1rem; background:var(--darker-bg); border-radius:4px; margin-top:0.5rem;}
+@media(max-width:768px){body{padding:1rem;} h1{font-size:2rem;} .card{padding:1.5rem;} .button-group{grid-template-columns:1fr;} button.copy-btn{grid-column:span 1;}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>EMOJI CRYPT</h1>
+<div class="subtitle">Zero-Width Steganography</div>
+</header>
+
+<div class="card">
+<h2 class="section-title">Encode Message</h2>
+<div class="input-group">
+<label for="coverEmojis">Cover Emojis</label>
+<textarea id="coverEmojis" placeholder="🔒🔐🗝️💎✨🌟⭐🎯🎪🎭"></textarea>
+</div>
+<div class="input-group">
+<label for="secretMessage">Secret Message</label>
+<textarea id="secretMessage" placeholder="Your secret message here..."></textarea>
+</div>
+<div class="checkbox-group">
+<input type="checkbox" id="useEncryption">
+<label for="useEncryption">Enable AES Encryption</label>
+</div>
+<div class="input-group" id="passwordGroup" style="display:none;">
+<label for="encryptPassword">Password</label>
+<input type="password" id="encryptPassword" placeholder="Enter encryption password">
+</div>
+<div class="button-group">
+<button onclick="hideMessage()"><span>🔒 HIDE</span></button>
+<button class="secondary" onclick="clearEncode()"><span>🗑️ CLEAR</span></button>
+</div>
+<div id="encodeStatus"></div>
+<div id="encodedOutput" class="output-area" style="display:none;"></div>
+<div id="encodeCopyBtn" style="display:none;">
+<button class="copy-btn" onclick="copyEncoded()"><span>📋 COPY ENCODED</span></button>
+</div>
+</div>
+
+<div class="card">
+<h2 class="section-title">Decode Message</h2>
+<div class="input-group">
+<label for="encodedInput">Encoded Emojis</label>
+<textarea id="encodedInput" placeholder="Paste your encoded emoji string here..."></textarea>
+</div>
+<div class="checkbox-group">
+<input type="checkbox" id="useDecryption">
+<label for="useDecryption">Message is Encrypted</label>
+</div>
+<div class="input-group" id="decryptPasswordGroup" style="display:none;">
+<label for="decryptPassword">Password</label>
+<input type="password" id="decryptPassword" placeholder="Enter decryption password">
+</div>
+<div class="button-group">
+<button onclick="revealMessage()"><span>🔓 REVEAL</span></button>
+<button class="secondary" onclick="clearDecode()"><span>🗑️ CLEAR</span></button>
+</div>
+<div id="decodeStatus"></div>
+<div id="decodedOutput" class="output-area" style="display:none;"></div>
+<div id="decodeCopyBtn" style="display:none;">
+<button class="copy-btn" onclick="copyDecoded()"><span>📋 COPY DECODED</span></button>
+</div>
+
+<div class="info-box">
+<strong>HOW IT WORKS:</strong><br>
+This tool uses zero-width Unicode characters (Zero Width Space U+200B for 0, Zero Width Joiner U+200D for 1) to hide binary-encoded messages between emojis. The hidden characters are invisible to the naked eye but can be decoded back to reveal your secret message. Optional AES-256 encryption adds an extra layer of security.
+</div>
+
+<footer>
+[ EMOJI CRYPT v1.0 ] - Steganography Tool - Zero-Width Character Encoding
+</footer>
+</div>
+
+<script>
+const ZWS='\u200B';
+const ZWJ='\u200D';
+
+document.getElementById('useEncryption').addEventListener('change',function(){document.getElementById('passwordGroup').style.display=this.checked?'block':'none';});
+document.getElementById('useDecryption').addEventListener('change',function(){document.getElementById('decryptPasswordGroup').style.display=this.checked?'block':'none';});
+
+function stringToBinary(str){return str.split('').map(c=>c.charCodeAt(0).toString(2).padStart(16,'0')).join('');}
+function binaryToString(bin){return (bin.match(/.{1,16}/g)||[]).map(ch=>String.fromCharCode(parseInt(ch,2))).join('');}
+
+function binaryToZeroWidth(bin){return bin.split('').map(b=>b==='0'?ZWS:ZWJ).join('');}
+function zeroWidthToBinary(str){return str.split('').filter(c=>c===ZWS||c===ZWJ).map(c=>c===ZWS?'0':'1').join('');}
+
+function hideMessage(){
+const cover=document.getElementById('coverEmojis').value.trim();
+let secret=document.getElementById('secretMessage').value;
+const useEnc=document.getElementById('useEncryption').checked;
+const password=document.getElementById('encryptPassword').value;
+if(!cover){showStatus('encodeStatus','Please enter cover emojis!','error'); return;}
+if(!secret){showStatus('encodeStatus','Please enter a secret message!','error'); return;}
+if(useEnc&&!password){showStatus('encodeStatus','Please enter an encryption password!','error'); return;}
+try{
+if(useEnc) secret=CryptoJS.AES.encrypt(secret,password).toString();
+const binary=stringToBinary(secret);
+const zw=binaryToZeroWidth(binary);
+const emojis=Array.from(cover);
+let encoded='';
+const perEmoji=Math.ceil(zw.length/emojis.length);
+for(let i=0;i<emojis.length;i++){encoded+=emojis[i]+zw.slice(i*perEmoji,(i+1)*perEmoji);}
+const out=document.getElementById('encodedOutput');
+out.textContent=encoded; out.style.display='block'; out.classList.add('success');
+document.getElementById('encodeCopyBtn').style.display='block';
+showStatus('encodeStatus',`✓ Message hidden successfully! ${useEnc?'(Encrypted)':''}`,'success');
+}catch(e){showStatus('encodeStatus','Error: '+e.message,'error');}
+}
+
+function revealMessage(){
+const input=document.getElementById('encodedInput').value;
+const useDec=document.getElementById('useDecryption').checked;
+const password=document.getElementById('decryptPassword').value;
+if(!input){showStatus('decodeStatus','Please paste an encoded emoji string!','error'); return;}
+if(useDec&&!password){showStatus('decodeStatus','Please enter the decryption password!','error'); return;}
+try{
+const binary=zeroWidthToBinary(input);
+if(!binary){showStatus('decodeStatus','No hidden message found!','error'); return;}
+let msg=binaryToString(binary);
+if(useDec){const decrypted=CryptoJS.AES.decrypt(msg,password); msg=decrypted.toString(CryptoJS.enc.Utf8); if(!msg){showStatus('decodeStatus','Decryption failed! Wrong password?','error'); return;}}
+const out=document.getElementById('decodedOutput');
+out.textContent=msg; out.style.display='block'; out.classList.add('success');
+document.getElementById('decodeCopyBtn').style.display='block';
+showStatus('decodeStatus',`✓ Message revealed successfully! ${useDec?'(Decrypted)':''}`,'success');
+}catch(e){showStatus('decodeStatus','Error: '+e.message,'error');}
+}
+
+function copyToClipboard(text,statusId,message){
+if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>{showStatus(statusId,message,'success');setTimeout(()=>{document.getElementById(statusId).innerHTML='';},2000);}).catch(()=>{fallbackCopy(text,statusId);});}else fallbackCopy(text,statusId);}
+function fallbackCopy(text,statusId){
+const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); showStatus(statusId,'Copied to clipboard!','success');}catch(e){showStatus(statusId,'Failed to copy!','error');} document.body.removeChild(ta);
+}
+
+function copyEncoded(){const text=document.getElementById('encodedOutput').textContent; copyToClipboard(text,'encodeStatus','Encoded message copied to clipboard!');}
+function copyDecoded(){const text=document.getElementById('decodedOutput').textContent; copyToClipboard(text,'decodeStatus','Decoded message copied to clipboard!');}
+
+function clearEncode(){['coverEmojis','secretMessage','encryptPassword'].forEach(id=>document.getElementById(id).value=''); document.getElementById('useEncryption').checked=false; document.getElementById('passwordGroup').style.display='none'; document.getElementById('encodedOutput').style.display='none'; document.getElementById('encodeCopyBtn').style.display='none'; document.getElementById('encodeStatus').innerHTML='';}
+function clearDecode(){['encodedInput','decryptPassword'].forEach(id=>document.getElementById(id).value=''); document.getElementById('useDecryption').checked=false; document.getElementById('decryptPasswordGroup').style.display='none'; document.getElementById('decodedOutput').style.display='none'; document.getElementById('decodeCopyBtn').style.display='none'; document.getElementById('decodeStatus').innerHTML='';}
+
+function showStatus(id,msg,type){document.getElementById(id).innerHTML=`<div class="status-message ${type}">${msg}</div>`;}
+</script>
+</body>
+</html>
