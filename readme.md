@@ -38,8 +38,8 @@ Optional AES encryption adds an extra layer of security.
 2. Check **"Message is Encrypted"** if encryption was used.
 3. Enter the **password** if required.
 4. Click **🔓 REVEAL**.
-
-## Live Demo
+---
+## 🌐 Live Demo
 https://chnk0x.github.io/emoji-crypt-tool/
 
 
