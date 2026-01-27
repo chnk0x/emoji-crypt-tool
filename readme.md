@@ -43,6 +43,4 @@ Optional AES encryption adds an extra layer of security.
 
 https://chnk0x.github.io/emoji-crypt-tool/
 
-## Author
-
-Chanuka (`chnk0x`)
+##
