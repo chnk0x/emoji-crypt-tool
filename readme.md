@@ -1,4 +1,4 @@
-# Emoji Crypt Tool
+# 🔐 Emoji Crypt Tool
 
 A zero-width steganography tool to hide secret messages inside emoji sequences.  
 Optional AES encryption adds an extra layer of security.
