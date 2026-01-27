@@ -3,14 +3,14 @@
 A zero-width steganography tool to hide secret messages inside emoji sequences.  
 Optional AES encryption adds an extra layer of security.
 
-## Features
+## 🚀 Features
 
 - Hide messages inside emojis using invisible Unicode characters:
 - Optional AES-256 encryption for extra security
 - Copy encoded/decoded messages to clipboard
 - Modern cyberpunk UI for an awesome user experience
 
-## How to Use
+## 📌 How to Use
 
 
 ### 1. Hiding a Secret Message
@@ -40,7 +40,6 @@ Optional AES encryption adds an extra layer of security.
 4. Click **🔓 REVEAL**.
 
 ## Live Demo
-
 https://chnk0x.github.io/emoji-crypt-tool/
 
 ##
