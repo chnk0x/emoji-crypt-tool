@@ -16,7 +16,7 @@ Optional AES encryption adds an extra layer of security.
 ### 1. Hiding a Secret Message
 
 1. Open the tool.
-2. Enter a sequence of **cover emojis** (e.g., `🔒🔐🗝️💎✨🌟⭐`).
+2. Enter a sequence of **cover emojis** (e.g., `🔒🗝️💎⭐`).
 3. Enter your **secret message** (e.g., `Meet me at 9 PM`).
 4. Check **"Enable AES Encryption"** if you want to encrypt.
 5. Enter a **password** if encryption is enabled.
@@ -24,7 +24,7 @@ Optional AES encryption adds an extra layer of security.
 7. Copy the **encoded emoji string**.
 8. **Example Output:**
 
-🔒🔐🗝️💎✨🌟⭐...
+🔒🗝️💎⭐...
 
 
 
